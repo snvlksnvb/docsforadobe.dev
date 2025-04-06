@@ -1,32 +1,46 @@
----
-hide:
-    - toc
----
+ var colorCodeMap = {
+    "255,0,0": "7",     // Red
+    "255,255,0": "4",   // Yellow
+    "0,255,255": "2",   // Cyan
+    "128,0,128": "6",   // Purple
+    "255,255,255": "1", // White
+    "0,0,0": "0"        // Black
+};
 
-<head>
-<script src="./_static/extensibility-directory.js"></script>
-</head>
+var doc = app.activeDocument;
+var texts = doc.textFrames;
 
-# Adobe CC Extensibility Directory
+ function getRGBString(color) {
+    if (color.typename === "RGBColor") {
+        return color.red + "," + color.green + "," + color.blue;
+    }
+    return "";
+}
 
-Quick links to a variety of extensibility resources.
+for (var i = 0; i < texts.length; i++) {
+    var text = texts[i];
+    var bounds = text.geometricBounds; // [y1, x1, y2, x2]
+    var centerX = (bounds[1] + bounds[3]) / 2;
+    var centerY = (bounds[0] + bounds[2]) / 2;
 
-<div id="filterButtons">
-    <div id="filterBtnsTags"></div>
-    <div id="filterBtnsApps"></div>
-</div>
+for (var j = 0; j < doc.pageItems.length; j++) {
+        var item = doc.pageItems[j];
+         if (item == text || !item.filled) continue;
+      
+var itemBounds = item.geometricBounds;
+        if (
+            centerX >= itemBounds[1] &&
+            centerX <= itemBounds[3] &&
+            centerY <= itemBounds[0] &&
+            centerY >= itemBounds[2]
+        ) {
+            var rgbString = getRGBString(item.fillColor);
+            if (rgbString in colorCodeMap) {
+                text.contents = colorCodeMap[rgbString];
+            }
+            break;
+        }
+    }
+}
 
-<div id="links" class="grid cards">
-    <ul id="linklist" />
-</div>
-
-!!! info
-    External resources, marked with the &#x29C9; symbol, are outside the control of this domain.
-
-    [docsforadobe](https://docsforadobe.dev) and the [docsforadobe.dev community](https://github.com/docsforadobe) community are not and do not claim to be legally affiliated with Adobe.
-
-    All pages hosted on this domain exist for educational purposes only, are independently owned, and rely on community support and management.
-
-    Adobe is either a registered trademark or trademark of Adobe Systems Incorporated in the United States and/or other countries.
-
-    Questions, comments, concerns? [Email us!](mailto:hi@docsforadobe.dev)
+alert("Color codes applied to text!");
